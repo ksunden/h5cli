@@ -9,10 +9,12 @@ class H5Explorer(object):
         self.__dir_queue = list()
 
     def __get_absolute_path(self, path):
-        if not path.startswith("/"):
-            return "/".join(self.__working_dir.split("/") + path.split("/"))
-        else:
-            return path
+        if path is None:
+            path = self.__working_dir
+        elif not path.startswith("/"):
+            path = "/".join(self.__working_dir.split("/") + path.split("/"))
+
+        return path.replace("//", "/")
 
     @property
     def working_dir(self):
@@ -35,12 +37,22 @@ class H5Explorer(object):
             raise IndexError("Cannot pop a directory before pushing one.")
         self.__working_dir = self.__dir_queue.pop()
 
-    def list_groups(self):
-        return [ k for k, v in self.__file[self.__working_dir].items()
+    def list_groups(self, target_dir=None):
+        target_dir = self.__get_absolute_path(target_dir)
+
+        if target_dir not in self.__file:
+            raise ValueError("Directory {} does not exist.".format(target_dir))
+
+        return [ k for k, v in self.__file[target_dir].items()
                  if isinstance(v, h5py.Group) ]
 
-    def list_datasets(self):
-        return [ k for k, v in self.__file[self.__working_dir].items()
+    def list_datasets(self, target_dir=None):
+        target_dir = self.__get_absolute_path(target_dir)
+
+        if target_dir not in self.__file:
+            raise ValueError("Directory {} does not exist.".format(target_dir))
+
+        return [ k for k, v in self.__file[target_dir].items()
                  if isinstance(v, h5py.Dataset) ]
 
     def create_group(self, group_dir):
