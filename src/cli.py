@@ -10,6 +10,10 @@ class CmdApp(Cmd):
             line = 'load ' + line
         return line
 
+    def do_load(self, args, opts=None):
+        print("Loading " + args)
+        self.explorer = h5_wrapper.H5Explorer(args)
+        
     def do_ls(self, args, opts=None):
         if len(args.strip()) > 0: 
             for g in self.explorer.list_groups(args):
@@ -39,28 +43,28 @@ class CmdApp(Cmd):
         self.explorer.pop_dir()
         self.do_pwd(None)
 
-    def do_mkdir(self, args, opts=None:
+    def do_mkdir(self, args, opts=None):
+        self.explorer.create_group(args)
+
+    def do_rmdir(self, args, opts=None):
         raise NotImplementedError
 
-    def do_rmdir(self, args, opts=None:
+    def do_rm(self, args, opts=None):
         raise NotImplementedError
 
-    def do_rm(self, args, opts=None:
+    def do_cat(self, args, opts=None):
         raise NotImplementedError
 
-    def do_cat(self, args, opts=None:
+    def do_head(self, args, opts=None):
         raise NotImplementedError
 
-    def do_head(self, args, opts=None:
+    def do_tail(self, args, opts=None):
         raise NotImplementedError
 
-    def do_tail(self, args, opts=None:
+    def do_cp(self, args, opts=None):
         raise NotImplementedError
 
-    def do_cp(self, args, opts=None:
-        raise NotImplementedError
-
-    def do_mv(self, args, opts=None:
+    def do_mv(self, args, opts=None):
         raise NotImplementedError
 
     def do_clear(self, args):
