@@ -6,11 +6,18 @@ import os
 class CmdApp(Cmd):
 
     def do_ls(self, args, opts=None):
-        for g in self.explorer.list_groups():
-            print(g+"/")
-        
-        for ds in self.explorer.list_datasets():
-            print(ds)
+        if len(args.strip()) > 0: 
+            for g in self.explorer.list_groups(args):
+                print(g+"/")
+            
+            for ds in self.explorer.list_datasets(args):
+                print(ds)
+        else:
+            for g in self.explorer.list_groups():
+                print(g+"/")
+            
+            for ds in self.explorer.list_datasets():
+                print(ds)
 
     def do_cd(self, args, opts=None):
         if len(args) == 0:
