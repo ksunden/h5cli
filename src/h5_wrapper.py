@@ -27,6 +27,14 @@ class H5Explorer(object):
         else:
             return path
 
+    def __check_dataset(self, path):
+        path = self.__get_absolute_path(path)
+        if path not in self.__file:
+            raise ValueError("Dataset {} does not exist.".format(path))
+        elif not isinstance(self.__file[path], h5py.Dataset):
+            raise ValueError("{} exists, but is not a dataset".format(path))
+        return path
+
     @property
     def working_dir(self):
         return self.__working_dir
@@ -61,6 +69,10 @@ class H5Explorer(object):
     def create_group(self, group_dir):
         group_dir = self.__get_absolute_path(group_dir)
         self.__file.create_group(group_dir)
+
+    def delete_dataset(self, target_path):
+        target_path = self.__check_dataset(target_path)
+        del self.__file[target_path]
 
     def delete_group(self, group_dir):
         group_dir = self.__check_group(group_dir)
