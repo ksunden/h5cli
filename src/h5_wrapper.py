@@ -26,6 +26,8 @@ class H5Explorer(object):
         new_dir = self.__get_absolute_path(new_dir)
 
         if new_dir in self.__file:
+            if isinstance(self.__file[new_dir], h5py.Dataset):
+                raise ValueError("{} exists, but is not a directory".format(new_dir))
             self.__working_dir = new_dir
         else:
             raise ValueError("Directory {} does not exist.".format(new_dir))
