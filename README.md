@@ -1,8 +1,8 @@
-## h5shell
+## h5cli
 A command shell interface to interact with HDF5 files.
 
 ### Usage:
 
 ```
-h5sh path/to/file.h5
+h5cli path/to/file.h5
 ```
