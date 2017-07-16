@@ -1,4 +1,6 @@
 import h5py
+import os
+import re
 
 
 class H5Explorer(object):
@@ -14,7 +16,7 @@ class H5Explorer(object):
         elif not path.startswith("/"):
             path = "/".join(self.__working_dir.split("/") + path.split("/"))
 
-        return path.replace("//", "/")
+        return re.sub("/+", "/", os.path.normpath(path))
 
     @property
     def working_dir(self):
@@ -29,6 +31,8 @@ class H5Explorer(object):
             raise ValueError("Directory {} does not exist.".format(new_dir))
 
     def push_dir(self, new_dir):
+        new_dir = self.__get_absolute_path(new_dir)
+
         self.__dir_queue.append(self.__working_dir)
         self.change_dir(new_dir)
 
