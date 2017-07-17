@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 from cmd2 import Cmd, options, make_option
 import h5_wrapper
-import sys
 import os
 
+
 class CmdApp(Cmd):
+    
+    Cmd.shortcuts.update({'!': 'bang', '$': 'shell'})
 
     def precmd(self, line):
         if not line.startswith('load') and (line.endswith('.h5') or line.endswith('.hdf5')):
