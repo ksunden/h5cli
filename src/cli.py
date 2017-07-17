@@ -5,11 +5,12 @@ import os
 
 
 class CmdApp(Cmd):
-    
+
     Cmd.shortcuts.update({'!': 'bang', '$': 'shell'})
 
     def precmd(self, line):
-        if not line.startswith('load') and (line.endswith('.h5') or line.endswith('.hdf5')):
+        if not line.startswith('load') and \
+           (line.endswith('.h5') or line.endswith('.hdf5')):
             line = 'load ' + line
         return line
 
@@ -19,18 +20,18 @@ class CmdApp(Cmd):
     def do_load(self, args, opts=None):
         print("Loading " + args)
         self.explorer = h5_wrapper.H5Explorer(args)
-        
+
     def do_ls(self, args, opts=None):
-        if len(args.strip()) > 0: 
+        if len(args.strip()) > 0:
             for g in self.explorer.list_groups(args):
                 print(g+"/")
-            
+
             for ds in self.explorer.list_datasets(args):
                 print(ds)
         else:
             for g in self.explorer.list_groups():
                 print(g+"/")
-            
+
             for ds in self.explorer.list_datasets():
                 print(ds)
 
@@ -90,11 +91,11 @@ class CmdApp(Cmd):
 
     def do_clear(self, args):
         os.system('clear')
-        
+
     def do_exit(self, args):
         return True
 
 
 if __name__ == '__main__':
-    c=CmdApp()
+    c = CmdApp()
     c.cmdloop()
