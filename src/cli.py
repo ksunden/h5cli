@@ -13,6 +13,9 @@ class CmdApp(Cmd):
             line = 'load ' + line
         return line
 
+    def do_source(self, args):
+        Cmd.do_load(self, args)
+
     def do_load(self, args, opts=None):
         print("Loading " + args)
         self.explorer = h5_wrapper.H5Explorer(args)
@@ -70,6 +73,21 @@ class CmdApp(Cmd):
     def do_mv(self, args, opts=None):
         raise NotImplementedError
 
+    def do_bang(self, args, opts=None):
+        if args.strip() == '!':
+            self.onecmd(self.history[-2])
+        elif args.strip().isnumeric():
+            print(self.history[-1 * int(args) - 1])
+            self.onecmd(self.history[-1 * int(args) - 1])
+        else:
+            history = self.history.copy()
+            history.reverse()
+            for cmd in history:
+                if cmd.startswith(args):
+                    self.onecmd(cmd)
+                    return False
+            raise ValueError("{}: event not found".format(args))
+
     def do_clear(self, args):
         os.system('clear')
         
@@ -78,5 +96,5 @@ class CmdApp(Cmd):
 
 
 if __name__ == '__main__':
-    c = CmdApp()
+    c=CmdApp()
     c.cmdloop()
