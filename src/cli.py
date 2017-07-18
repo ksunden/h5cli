@@ -1,31 +1,37 @@
 #!/usr/bin/env python3
 from cmd2 import Cmd, options, make_option
 import h5_wrapper
-import sys
 import os
+
 
 class CmdApp(Cmd):
 
+    Cmd.shortcuts.update({'!': 'bang', '$': 'shell'})
+
     def precmd(self, line):
-        if not line.startswith('load') and (line.endswith('.h5') or line.endswith('.hdf5')):
+        if not line.startswith('load') and \
+           (line.endswith('.h5') or line.endswith('.hdf5')):
             line = 'load ' + line
         return line
+
+    def do_source(self, args):
+        Cmd.do_load(self, args)
 
     def do_load(self, args, opts=None):
         print("Loading " + args)
         self.explorer = h5_wrapper.H5Explorer(args)
-        
+
     def do_ls(self, args, opts=None):
-        if len(args.strip()) > 0: 
+        if len(args.strip()) > 0:
             for g in self.explorer.list_groups(args):
                 print(g+"/")
-            
+
             for ds in self.explorer.list_datasets(args):
                 print(ds)
         else:
             for g in self.explorer.list_groups():
                 print(g+"/")
-            
+
             for ds in self.explorer.list_datasets():
                 print(ds)
 
@@ -68,9 +74,24 @@ class CmdApp(Cmd):
     def do_mv(self, args, opts=None):
         raise NotImplementedError
 
+    def do_bang(self, args, opts=None):
+        if args.strip() == '!':
+            self.onecmd(self.history[-2])
+        elif args.strip().isnumeric():
+            print(self.history[-1 * int(args) - 1])
+            self.onecmd(self.history[-1 * int(args) - 1])
+        else:
+            history = self.history.copy()
+            history.reverse()
+            for cmd in history:
+                if cmd.startswith(args):
+                    self.onecmd(cmd)
+                    return False
+            raise ValueError("{}: event not found".format(args))
+
     def do_clear(self, args):
         os.system('clear')
-        
+
     def do_exit(self, args):
         return True
 
