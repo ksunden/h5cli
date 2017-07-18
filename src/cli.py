@@ -12,7 +12,6 @@ class CmdApp(Cmd):
         self.abbrev = True
         self.prompt = '[] > '
 
-
     def precmd(self, line):
         if not line.startswith('load') and \
            (line.endswith('.h5') or line.endswith('.hdf5')):
@@ -21,7 +20,9 @@ class CmdApp(Cmd):
 
     def postcmd(self, stop, line):
         if self.explorer:
-            self.prompt = '[{}: {}/] > '.format(os.path.basename(self.explorer.filename), os.path.basename(self.explorer.working_dir))
+            self.prompt = '[{}: {}/] > '.format(
+                os.path.basename(self.explorer.filename),
+                os.path.basename(self.explorer.working_dir))
         return stop
 
     def do_source(self, args):
@@ -34,13 +35,13 @@ class CmdApp(Cmd):
     def do_ls(self, args, opts=None):
         if len(args.strip()) > 0:
             for g in self.explorer.list_groups(args):
-                print(g+"/")
+                print(g + "/")
 
             for ds in self.explorer.list_datasets(args):
                 print(ds)
         else:
             for g in self.explorer.list_groups():
-                print(g+"/")
+                print(g + "/")
 
             for ds in self.explorer.list_datasets():
                 print(ds)
