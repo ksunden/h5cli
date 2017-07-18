@@ -5,6 +5,7 @@ import re
 
 class H5Explorer(object):
     def __init__(self, filename, mode="r"):
+        self.__filename = filename
         self.__file = h5py.File(filename, mode)
         self.__working_dir = "/"
 
@@ -38,6 +39,10 @@ class H5Explorer(object):
     @property
     def working_dir(self):
         return self.__working_dir
+
+    @property
+    def filename(self):
+        return self.__filename
 
     def change_dir(self, new_dir="/"):
         new_dir = self.__check_group(new_dir)

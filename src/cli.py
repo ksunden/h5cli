@@ -6,13 +6,23 @@ import os
 
 class CmdApp(Cmd):
 
-    Cmd.shortcuts.update({'!': 'bang', '$': 'shell'})
+    def __init__(self):
+        Cmd.__init__(self)
+        Cmd.shortcuts.update({'!': 'bang', '$': 'shell'})
+        self.abbrev = True
+        self.prompt = '[] > '
+
 
     def precmd(self, line):
         if not line.startswith('load') and \
            (line.endswith('.h5') or line.endswith('.hdf5')):
             line = 'load ' + line
         return line
+
+    def postcmd(self, stop, line):
+        if self.explorer:
+            self.prompt = '[{}: {}/] > '.format(os.path.basename(self.explorer.filename), os.path.basename(self.explorer.working_dir))
+        return stop
 
     def do_source(self, args):
         Cmd.do_load(self, args)
