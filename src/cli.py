@@ -11,6 +11,7 @@ class CmdApp(Cmd):
         Cmd.shortcuts.update({'!': 'bang', '$': 'shell'})
         self.abbrev = True
         self.prompt = '[] > '
+        self.explorer = None
 
     def precmd(self, line):
         if not line.startswith('load') and \
