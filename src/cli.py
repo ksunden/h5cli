@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from cmd2 import Cmd, options, make_option
-import h5_wrapper
+from . import h5_wrapper
 import os
 
 
@@ -108,6 +108,10 @@ class CmdApp(Cmd):
         return True
 
 
-if __name__ == '__main__':
+def main():
     c = CmdApp()
     c.cmdloop()
+
+
+if __name__ == '__main__':
+    main()
