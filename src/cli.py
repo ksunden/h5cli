@@ -7,8 +7,8 @@ import os
 class CmdApp(Cmd):
 
     def __init__(self):
-        Cmd.__init__(self)
         Cmd.shortcuts.update({'!': 'bang', '$': 'shell'})
+        Cmd.__init__(self)
         self.abbrev = True
         self.prompt = '[] > '
         self.explorer = None
