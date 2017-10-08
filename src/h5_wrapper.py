@@ -2,7 +2,6 @@ import h5py
 import os
 import re
 
-
 class H5Explorer(object):
     def __init__(self, filename, mode="r"):
         self.__filename = filename
@@ -58,6 +57,20 @@ class H5Explorer(object):
         if len(self.__dir_queue) == 0:
             raise IndexError("Cannot pop a directory before pushing one.")
         self.__working_dir = self.__dir_queue.pop()
+
+
+    def __call__(self, path=None):
+        if path is None:
+            return self.__file[self.__working_dir]
+        else:
+            return self.__file[self.__get_absolute_path(path)]
+
+    def dataset(self, path):
+        return self.__file[self.__check_dataset(path)]
+
+    def group(self, path):
+        return self.__file[self.__check_group(path)]
+
 
     def list_groups(self, target_dir=None):
         target_dir = self.__check_group(target_dir)
