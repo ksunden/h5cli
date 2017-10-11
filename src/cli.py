@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from cmd2 import Cmd, options, make_option
-import h5_wrapper
-import new_explorer
+import explorer
 import os
 
 

@@ -3,12 +3,17 @@ import os
 import re
 
 class H5Explorer(object):
-    def __init__(self, filename, mode="r"):
-        self.__filename = filename
-        self.__file = h5py.File(filename, mode)
-        self.__working_dir = "/"
+    def __init__(self, h5_obj):
+        self.__filename = h5_obj.file.filename
+        self.__file = h5_obj
+        self.__working_dir = h5_obj.name
 
         self.__dir_queue = list()
+
+    @staticmethod
+    def from_file(filename, mode="r"):
+        h5_file = h5py.File(filename, mode)
+        return NewH5Explorer(h5_file)
 
     def __get_absolute_path(self, path):
         if path is None:
@@ -47,51 +52,34 @@ class H5Explorer(object):
         new_dir = self.__check_group(new_dir)
         self.__working_dir = new_dir
 
-    def push_dir(self, new_dir):
-        new_dir = self.__get_absolute_path(new_dir)
+    @property
+    def raw(self):
+        return self.__file
 
-        self.__dir_queue.append(self.__working_dir)
-        self.change_dir(new_dir)
+    @property
+    def datasets(self):
+        target_dir = self.__check_group(None)
 
-    def pop_dir(self):
-        if len(self.__dir_queue) == 0:
-            raise IndexError("Cannot pop a directory before pushing one.")
-        self.__working_dir = self.__dir_queue.pop()
+        return [k for k, v in self.__file[target_dir].items()
+                if isinstance(v, h5py.Dataset)]
+    @property
+    def groups(self):
+        target_dir = self.__check_group(None)
 
+        return [k for k, v in self.__file[target_dir].items()
+                if isinstance(v, h5py.Group)]
 
-    def __call__(self, path=None):
-        if path is None:
-            return self.__file[self.__working_dir]
-        else:
-            return self.__file[self.__get_absolute_path(path)]
+    def __getitem__(self, path):
+        result = self.__file[self.__get_absolute_path(path)]
+        if isinstance(result, h5py.Dataset):
+            return result
+        return NewH5Explorer(result)
+
+    def __delitem__(self, path):
+        del self.__file[self.__get_absolute_path(path)]
 
     def dataset(self, path):
         return self.__file[self.__check_dataset(path)]
 
     def group(self, path):
         return self.__file[self.__check_group(path)]
-
-
-    def list_groups(self, target_dir=None):
-        target_dir = self.__check_group(target_dir)
-
-        return [k for k, v in self.__file[target_dir].items()
-                if isinstance(v, h5py.Group)]
-
-    def list_datasets(self, target_dir=None):
-        target_dir = self.__check_group(target_dir)
-
-        return [k for k, v in self.__file[target_dir].items()
-                if isinstance(v, h5py.Dataset)]
-
-    def create_group(self, group_dir):
-        group_dir = self.__get_absolute_path(group_dir)
-        self.__file.create_group(group_dir)
-
-    def delete_dataset(self, target_path):
-        target_path = self.__check_dataset(target_path)
-        del self.__file[target_path]
-
-    def delete_group(self, group_dir):
-        group_dir = self.__check_group(group_dir)
-        del self.__file[group_dir]
