@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from cmd2 import Cmd, options, make_option
-import explorer
+from . import explorer
 import os
 
 
@@ -34,7 +34,7 @@ class CmdApp(Cmd):
         make_option('-m', '--mode', type=str, default='r', help='File mode ([r]ead, [w]rite, [a]ppend)')
     ])
     def do_load(self, args, opts=None):
-        self.explorer = new_explorer.NewH5Explorer.from_file(args[0], mode=opts.mode)
+        self.explorer = explorer.H5Explorer.from_file(args[0], mode=opts.mode)
 
     def do_ls(self, args, opts=None):
         if len(args.strip()) > 0:

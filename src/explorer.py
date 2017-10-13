@@ -13,7 +13,7 @@ class H5Explorer(object):
     @staticmethod
     def from_file(filename, mode="r"):
         h5_file = h5py.File(filename, mode)
-        return NewH5Explorer(h5_file)
+        return H5Explorer(h5_file)
 
     def __get_absolute_path(self, path):
         if path is None:
@@ -73,7 +73,7 @@ class H5Explorer(object):
         result = self.__file[self.__get_absolute_path(path)]
         if isinstance(result, h5py.Dataset):
             return result
-        return NewH5Explorer(result)
+        return H5Explorer(result)
 
     def __delitem__(self, path):
         del self.__file[self.__get_absolute_path(path)]
