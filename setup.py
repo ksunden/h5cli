@@ -29,7 +29,7 @@ setup(
     author='Kyle Sunden',
     license='MIT',
     entry_points={
-        'console_scripts': ['h5cli=src.cli:main']},
+        'console_scripts': ['h5cli=src.h5cli.cli:main']},
     classifiers=[
         'Development Status :: 1 - Planning',
         'Environment :: Console',

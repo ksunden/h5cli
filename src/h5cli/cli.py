@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 from cmd2 import Cmd, options, make_option
 from . import explorer
 import os
@@ -115,7 +114,3 @@ class CmdApp(Cmd):
 def main():
     c = CmdApp()
     c.cmdloop()
-
-
-if __name__ == '__main__':
-    main()
