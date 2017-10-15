@@ -104,6 +104,18 @@ class CmdApp(Cmd):
     def do_clear(self, args):
         os.system('clear')
 
+    @options([
+        make_option('-n', '--number',action='store_true', help='print number of elements, rather than full shape')
+    ])
+    def do_shape(self, args, opts=None):
+        """Print the shape of a dataset."""
+        if opts.number:
+            print(self.explorer[args[0]].size)
+            return False
+
+        print(self.explorer[args[0]].shape)
+        return False
+
     def do_exit(self, args):
         return True
 
