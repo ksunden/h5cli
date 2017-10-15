@@ -105,12 +105,17 @@ class CmdApp(Cmd):
         os.system('clear')
 
     @options([
-        make_option('-n', '--number',action='store_true', help='print number of elements, rather than full shape')
+        make_option('-n', '--number',action='store_true', help='print number of elements, rather than full shape'),
+        make_option('-m', '--maxshape',action='store_true', help='print maximum shape, rather than current shape')
     ])
     def do_shape(self, args, opts=None):
         """Print the shape of a dataset."""
         if opts.number:
             print(self.explorer[args[0]].size)
+            return False
+
+        if opts.maxshape:
+            print(self.explorer[args[0]].maxshape)
             return False
 
         print(self.explorer[args[0]].shape)
