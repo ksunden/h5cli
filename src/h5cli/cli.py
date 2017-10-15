@@ -1,6 +1,5 @@
-#!/usr/bin/env python3
 from cmd2 import Cmd, options, make_option
-from . import h5_wrapper
+from . import explorer
 import os
 import sys
 
@@ -13,6 +12,7 @@ class CmdApp(Cmd):
         self.abbrev = True
         self.prompt = '[] > '
         self.explorer = None
+        self.dir_stack = list()
 
     def postcmd(self, stop, line):
         if self.explorer:
@@ -24,23 +24,23 @@ class CmdApp(Cmd):
     def do_source(self, args):
         Cmd.do_load(self, args)
 
+    @options([
+        make_option('-m', '--mode', type=str, default='r', help='File mode ([r]ead, [w]rite, [a]ppend)')
+    ])
     def do_load(self, args, opts=None):
-        print("Loading " + args)
-        self.explorer = h5_wrapper.H5Explorer(args)
+        self.explorer = explorer.H5Explorer.from_file(args[0], mode=opts.mode)
 
     def do_ls(self, args, opts=None):
         if len(args.strip()) > 0:
-            for g in self.explorer.list_groups(args):
-                print(g + "/")
-
-            for ds in self.explorer.list_datasets(args):
-                print(ds)
+            dest = self.explorer[args]
         else:
-            for g in self.explorer.list_groups():
-                print(g + "/")
+            dest = self.explorer
 
-            for ds in self.explorer.list_datasets():
-                print(ds)
+        for g in dest.groups:
+            print(g + "/")
+
+        for ds in dest.datasets:
+            print(ds)
 
     def do_cd(self, args, opts=None):
         if len(args) == 0:
@@ -51,14 +51,17 @@ class CmdApp(Cmd):
         print(self.explorer.working_dir)
 
     def do_pushd(self, args, opts=None):
-        self.explorer.push_dir(args)
+        self.dir_stack.append(self.explorer.working_dir)
+        self.explorer.change_dir(args)
 
     def do_popd(self, args, opts=None):
-        self.explorer.pop_dir()
+        dest = self.dir_stack.pop()
+        self.explorer.change_dir(dest)
         self.do_pwd(None)
 
     def do_mkdir(self, args, opts=None):
-        self.explorer.create_group(args)
+        h5_grp = self.explorer[args + "/.."].raw
+        h5_grp.create_group(args)
 
     def do_rmdir(self, args, opts=None):
         raise NotImplementedError
@@ -112,7 +115,3 @@ def main():
         c.postcmd(False, "")
         sys.argv[1] = ""
     c.cmdloop()
-
-
-if __name__ == '__main__':
-    main()
