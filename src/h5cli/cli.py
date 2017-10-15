@@ -1,6 +1,7 @@
 from cmd2 import Cmd, options, make_option
 from . import explorer
 import os
+import sys
 
 
 class CmdApp(Cmd):
@@ -12,12 +13,6 @@ class CmdApp(Cmd):
         self.prompt = '[] > '
         self.explorer = None
         self.dir_stack = list()
-
-    def precmd(self, line):
-        if not line.startswith('load') and \
-           (line.endswith('.h5') or line.endswith('.hdf5')):
-            line = 'load ' + line
-        return line
 
     def postcmd(self, stop, line):
         if self.explorer:
@@ -91,6 +86,7 @@ class CmdApp(Cmd):
 
     def do_bang(self, args, opts=None):
         if args.strip() == '!':
+            print(self.history[-2])
             self.onecmd(self.history[-2])
         elif args.strip().isnumeric():
             print(self.history[-1 * int(args) - 1])
@@ -100,6 +96,7 @@ class CmdApp(Cmd):
             history.reverse()
             for cmd in history:
                 if cmd.startswith(args):
+                    print(cmd)
                     self.onecmd(cmd)
                     return False
             raise ValueError("{}: event not found".format(args))
@@ -113,4 +110,8 @@ class CmdApp(Cmd):
 
 def main():
     c = CmdApp()
+    if len(sys.argv) > 1:
+        c.onecmd('load ' + sys.argv[1])
+        c.postcmd(False, "")
+        sys.argv[1] = ""
     c.cmdloop()
