@@ -107,6 +107,11 @@ class CmdApp(Cmd):
     def do_exit(self, args):
         return True
 
+    @options([])
+    def do_dtype(self, args, opts=None):
+        """Print the data type of a dataset."""
+        print(self.explorer[args].dtype)
+
 
 def main():
     c = CmdApp()
