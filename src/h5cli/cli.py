@@ -133,7 +133,7 @@ class CmdApp(Cmd):
 
         group = self.explorer.group(args)
         tree_format.print_tree(group, format, children)
-        print('{} groups, {} datasets'.format(__groupcount, __datasetcount))
+        print('{} groups, {} datasets'.format(__groupcount - 1, __datasetcount))
 
     @options([])
     def do_dtype(self, args, opts=None):
