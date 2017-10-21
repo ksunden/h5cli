@@ -110,12 +110,22 @@ class CmdApp(Cmd):
         return True
 
     def do_tree(self, args):
+        global __groupcount
+        global __datasetcount
+        __groupcount = 0
+        __datasetcount = 0
         def children(item):
             if isinstance(item, h5py.Dataset):
                 return []
             else:
                 return [i[1] for i in item.items()]
         def format(item):
+            if isinstance(item, h5py.Dataset):
+                global __datasetcount
+                __datasetcount += 1
+            elif isinstance(item, h5py.Group):
+                global __groupcount
+                __groupcount += 1
             name = os.path.basename(item.name)
             if name == '':
                 name = '/'
@@ -123,6 +133,7 @@ class CmdApp(Cmd):
 
         group = self.explorer.group(args)
         tree_format.print_tree(group, format, children)
+        print('{} groups, {} datasets'.format(__groupcount, __datasetcount))
 
     @options([])
     def do_dtype(self, args, opts=None):
