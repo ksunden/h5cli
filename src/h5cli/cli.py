@@ -109,7 +109,11 @@ class CmdApp(Cmd):
     def do_exit(self, args):
         return True
 
-    def do_tree(self, args):
+    @options([
+        make_option('-s', '--shape', action='store_true', help='print the shape of datasets')
+    ])
+    def do_tree(self, args, opts=None):
+        """list contents of groups in a tree-like format."""
         global __groupcount
         global __datasetcount
         __groupcount = 0
@@ -120,18 +124,22 @@ class CmdApp(Cmd):
             else:
                 return [i[1] for i in item.items()]
         def format(item):
+            name = os.path.basename(item.name)
+            if name == '':
+                name = '/'
             if isinstance(item, h5py.Dataset):
+                if opts.shape:
+                    name = name + '  ' + str(item.shape)
                 global __datasetcount
                 __datasetcount += 1
             elif isinstance(item, h5py.Group):
                 global __groupcount
                 __groupcount += 1
-            name = os.path.basename(item.name)
-            if name == '':
-                name = '/'
             return name
 
-        group = self.explorer.group(args)
+        if len(args)==0:
+            args.append('')
+        group = self.explorer.group(args[0])
         tree_format.print_tree(group, format, children)
         print('{} groups, {} datasets'.format(__groupcount - 1, __datasetcount))
 
