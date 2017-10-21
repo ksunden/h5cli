@@ -1,6 +1,8 @@
 from cmd2 import Cmd, options, make_option
 from . import explorer
+import h5py
 import os
+import tree_format
 import sys
 
 
@@ -106,6 +108,21 @@ class CmdApp(Cmd):
 
     def do_exit(self, args):
         return True
+
+    def do_tree(self, args):
+        def children(item):
+            if isinstance(item, h5py.Dataset):
+                return []
+            else:
+                return [i[1] for i in item.items()]
+        def format(item):
+            name = os.path.basename(item.name)
+            if name == '':
+                name = '/'
+            return name
+
+        group = self.explorer.group(args)
+        tree_format.print_tree(group, format, children)
 
     @options([])
     def do_dtype(self, args, opts=None):
