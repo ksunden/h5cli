@@ -118,11 +118,13 @@ class CmdApp(Cmd):
         global __datasetcount
         __groupcount = 0
         __datasetcount = 0
+
         def children(item):
             if isinstance(item, h5py.Dataset):
                 return []
             else:
                 return [i[1] for i in item.items()]
+
         def format(item):
             name = os.path.basename(item.name)
             if name == '':
@@ -137,7 +139,7 @@ class CmdApp(Cmd):
                 __groupcount += 1
             return name
 
-        if len(args)==0:
+        if len(args) == 0:
             args.append('')
         group = self.explorer.group(args[0])
         tree_format.print_tree(group, format, children)
