@@ -104,6 +104,23 @@ class CmdApp(Cmd):
     def do_clear(self, args):
         os.system('clear')
 
+    @options([
+        make_option('-n', '--number',action='store_const', const='number', dest='kind', help='print number of elements, rather than full shape'),
+        make_option('-m', '--maxshape',action='store_const', const='maxshape', dest='kind', help='print maximum shape, rather than current shape')
+    ])
+    def do_shape(self, args, opts=None):
+        """Print the shape of a dataset."""
+        if opts.kind == 'number':
+            print(self.explorer[args[0]].size)
+
+        elif opts.kind == 'maxshape':
+            print(self.explorer[args[0]].maxshape)
+
+        else:
+            print(self.explorer[args[0]].shape)
+
+        return False
+
     def do_exit(self, args):
         return True
 
