@@ -1,6 +1,8 @@
 from cmd2 import Cmd, options, make_option
 from . import explorer
+import h5py
 import os
+import tree_format
 import sys
 
 
@@ -123,6 +125,42 @@ class CmdApp(Cmd):
 
     def do_exit(self, args):
         return True
+
+    @options([
+        make_option('-s', '--shape', action='store_true', help='print the shape of datasets')
+    ])
+    def do_tree(self, args, opts=None):
+        """list contents of groups in a tree-like format."""
+        global __groupcount
+        global __datasetcount
+        __groupcount = 0
+        __datasetcount = 0
+
+        def children(item):
+            if isinstance(item, h5py.Dataset):
+                return []
+            else:
+                return [i[1] for i in item.items()]
+
+        def format(item):
+            name = os.path.basename(item.name)
+            if name == '':
+                name = '/'
+            if isinstance(item, h5py.Dataset):
+                if opts.shape:
+                    name = name + '  ' + str(item.shape)
+                global __datasetcount
+                __datasetcount += 1
+            elif isinstance(item, h5py.Group):
+                global __groupcount
+                __groupcount += 1
+            return name
+
+        if len(args) == 0:
+            args.append('')
+        group = self.explorer.group(args[0])
+        tree_format.print_tree(group, format, children)
+        print('{} groups, {} datasets'.format(__groupcount - 1, __datasetcount))
 
     @options([])
     def do_dtype(self, args, opts=None):
