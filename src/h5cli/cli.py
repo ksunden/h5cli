@@ -1,4 +1,5 @@
-from cmd2 import Cmd, options, make_option
+from cmd2 import Cmd, options
+from optparse import make_option
 from . import explorer
 import h5py
 import os
@@ -122,6 +123,10 @@ class CmdApp(Cmd):
             print(self.explorer[args[0]].shape)
 
         return False
+
+    @options([])
+    def do_len(self, args, opts=None):
+        print(self.explorer[args[0]].len())
 
     def do_exit(self, args):
         return True
