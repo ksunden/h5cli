@@ -109,7 +109,8 @@ class CmdApp(Cmd):
 
     @options([
         make_option('-n', '--number',action='store_const', const='number', dest='kind', help='print number of elements, rather than full shape'),
-        make_option('-m', '--maxshape',action='store_const', const='maxshape', dest='kind', help='print maximum shape, rather than current shape')
+        make_option('-m', '--maxshape',action='store_const', const='maxshape', dest='kind', help='print maximum shape, rather than current shape'),
+        make_option('-c', '--chunks',action='store_const', const='chunks', dest='kind', help='print shape of chunks, rather than full shape'),
     ])
     def do_shape(self, args, opts=None):
         """Print the shape of a dataset."""
@@ -118,6 +119,9 @@ class CmdApp(Cmd):
 
         elif opts.kind == 'maxshape':
             print(self.explorer[args[0]].maxshape)
+
+        elif opts.kind == 'chunks':
+            print(self.explorer[args[0]].chunks)
 
         else:
             print(self.explorer[args[0]].shape)
