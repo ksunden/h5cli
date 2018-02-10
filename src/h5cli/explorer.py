@@ -12,6 +12,7 @@ class H5Explorer(object):
 
     @staticmethod
     def from_file(filename, mode="r"):
+        filename = os.path.expanduser(filename)
         h5_file = h5py.File(filename, mode)
         return H5Explorer(h5_file)
 
