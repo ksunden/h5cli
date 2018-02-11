@@ -174,7 +174,16 @@ class CmdApp(Cmd):
     @options([])
     def do_dtype(self, args, opts=None):
         """Print the data type of a dataset."""
-        print(self.explorer[args].dtype)
+        print(self.explorer[args[0]].dtype)
+
+    @options([
+        make_option('-o', '--opts', action='store_true', help='print compression options.')
+        ])
+    def do_comp(self, args, opts=None):
+        """Print the compression filter of a dataset."""
+        print(self.explorer[args[0]].compression)
+        if opts.opts:
+            print(self.explorer[args[0]].compression_opts)
 
 
 def main():
