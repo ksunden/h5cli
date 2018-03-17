@@ -153,6 +153,24 @@ class CmdApp(Cmd):
 
         return False
 
+    @options([
+        make_option('-a', '--axis', type=int, help='change length of a single axis, rather than the full shape'),
+    ])
+    def do_resize(self, args, opts=None):
+        """Resize a dataset to a given shape.
+
+        Usage:  resize [-a axis] path int ...
+        """
+        dataset = args[0]
+        shape = tuple(int(x) for x in args[1:])
+        if opts.axis is not None:
+            if len(shape) != 1:
+                raise ValueError('Expected exactly one integer when changing axis size')
+            self.explorer[dataset].resize(shape[0], axis=opts.axis)
+        else:
+            self.explorer[dataset].resize(shape)
+
+
     @options([])
     def do_len(self, args, opts=None):
         print(self.explorer[args[0]].len())
