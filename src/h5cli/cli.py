@@ -18,10 +18,12 @@ class CmdApp(Cmd):
         self.dir_stack = list()
 
     def postcmd(self, stop, line):
+        self.prompt = '[] > '
         if self.explorer:
-            self.prompt = '[{}: {}/] > '.format(
+            self.prompt = '[{}: {}/] {} '.format(
                 os.path.basename(self.explorer.filename),
-                os.path.basename(self.explorer.working_dir))
+                os.path.basename(self.explorer.working_dir),
+                '>' if self.explorer.raw.mode == 'r' else '+>')
         return stop
 
     def do_source(self, args):
@@ -31,7 +33,20 @@ class CmdApp(Cmd):
         make_option('-m', '--mode', type=str, default='r', help='File mode ([r]ead, [w]rite, [a]ppend)')
     ])
     def do_load(self, args, opts=None):
+        """Load an hdf5 file.
+
+        Usage: load [-m mode] file [path]
+        """
+        path = '/'
+        if len(args) > 1:
+            path = args[1]
+        if len(args) == 0:
+            args = [self.explorer.filename]
+            path = self.explorer.working_dir
+            self.explorer.close()
+
         self.explorer = explorer.H5Explorer.from_file(args[0], mode=opts.mode)
+        self.explorer.change_dir(path)
 
     def do_ls(self, args, opts=None):
         if len(args.strip()) > 0:
@@ -86,6 +101,16 @@ class CmdApp(Cmd):
 
     def do_mv(self, args, opts=None):
         raise NotImplementedError
+
+    def do_su(self, args, opts=None):
+        self.do_load('-ma')
+
+    def do_sudo(self, args, opts=None):
+        # guaranteed to be 'r' or 'r+' not 'w' which would be dangerous
+        mode = self.explorer.raw.mode
+        self.do_load('-ma')
+        self.onecmd(str(args))
+        self.do_load('-m'+mode)
 
     def do_bang(self, args, opts=None):
         if args.strip() == '!':
@@ -193,3 +218,4 @@ def main():
         c.postcmd(False, "")
         sys.argv[1] = ""
     c.cmdloop()
+    c.explorer.close()

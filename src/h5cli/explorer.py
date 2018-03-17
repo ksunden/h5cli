@@ -79,6 +79,9 @@ class H5Explorer(object):
     def __delitem__(self, path):
         del self.__file[self.__get_absolute_path(path)]
 
+    def close(self):
+        self.raw.close()
+
     def dataset(self, path):
         return self.__file[self.__check_dataset(path)]
 
