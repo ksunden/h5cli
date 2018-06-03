@@ -96,8 +96,56 @@ class CmdApp(Cmd):
     def do_tail(self, args, opts=None):
         raise NotImplementedError
 
+    @options([
+        make_option('-f', '--force', action='store_const', const='f', dest='interaction', help='if  an existing destination file cannot be opened, remove it and try again (overrides a previous -i or -n option)'),
+        make_option('-i', '--interactive', action='store_const', const='i', dest='interaction', help='prompt before overwrite (overrides a previous -f or -n option)'),
+        make_option('-n', '--no-clobber', action='store_const', const='n', dest='interaction', default='i', help='do not overwrite an existing file (overrides a previous -f or -i option)'),
+        make_option('-R', '-r', '--recursive', action='store_true', help='copy groups recursively'),
+        make_option('-t', '--target-group', type=str, dest='target', help='copy all SOURCE arguments into GROUP'),
+        ])
     def do_cp(self, args, opts=None):
-        raise NotImplementedError
+        if opts.target:
+            dest = self.explorer.group(opts.target)
+            source = args
+        else:
+            dest = args[-1]
+            source = args[:-1]
+            try:
+                dest = self.explorer.group(dest)
+            except ValueError:
+                dest = self.explorer.get_absolute_path(dest)
+                # Destination is not an existing group, keep string
+
+        for src in source:
+            try:
+                self.explorer.dataset(src)
+                src = self.explorer.get_absolute_path(src)
+            except ValueError as e:
+                if 'not exist' in e.args[0]:
+                    print("cp: omitting '{}': No such dataset or group".format(src))
+                    continue
+                elif not opts.recursive:
+                    print("cp: -r not specified; omitting group '{}'".format(src))
+                    continue
+                else:
+                    src = self.explorer.group(src)
+            try:
+                self.explorer.raw.copy(src, dest)
+            except ValueError:
+                force = opts.interaction == 'f'
+                d = dest
+                if isinstance(dest, h5py.Group):
+                    s = src
+                    if not isinstance(src, (str, bytes, os.PathLike)):
+                        s = src.name
+                    d = '/'.join((dest.name, os.path.basename(s)))
+                if opts.interaction == 'i':
+                    inp = input("cp: overwrite '{}'? ".format(d))
+                    force = inp.lower() in ['y', 'yes']
+                if force:
+                    del self.explorer[d]
+                    self.explorer.raw.copy(src, dest)
+
 
     def do_mv(self, args, opts=None):
         raise NotImplementedError

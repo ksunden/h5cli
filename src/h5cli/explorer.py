@@ -16,7 +16,7 @@ class H5Explorer(object):
         h5_file = h5py.File(filename, mode)
         return H5Explorer(h5_file)
 
-    def __get_absolute_path(self, path):
+    def get_absolute_path(self, path):
         if path is None:
             path = self.__working_dir
         elif not path.startswith("/"):
@@ -25,7 +25,7 @@ class H5Explorer(object):
         return re.sub("/+", "/", os.path.normpath(path))
 
     def __check_group(self, path):
-        path = self.__get_absolute_path(path)
+        path = self.get_absolute_path(path)
         if path not in self.__file:
             raise ValueError("Directory {} does not exist.".format(path))
         elif not isinstance(self.__file[path], h5py.Group):
@@ -34,7 +34,7 @@ class H5Explorer(object):
             return path
 
     def __check_dataset(self, path):
-        path = self.__get_absolute_path(path)
+        path = self.get_absolute_path(path)
         if path not in self.__file:
             raise ValueError("Dataset {} does not exist.".format(path))
         elif not isinstance(self.__file[path], h5py.Dataset):
@@ -71,13 +71,13 @@ class H5Explorer(object):
                 if isinstance(v, h5py.Group)]
 
     def __getitem__(self, path):
-        result = self.__file[self.__get_absolute_path(path)]
+        result = self.__file[self.get_absolute_path(path)]
         if isinstance(result, h5py.Dataset):
             return result
         return H5Explorer(result)
 
     def __delitem__(self, path):
-        del self.__file[self.__get_absolute_path(path)]
+        del self.__file[self.get_absolute_path(path)]
 
     def close(self):
         self.raw.close()
