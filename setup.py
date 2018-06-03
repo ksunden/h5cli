@@ -19,7 +19,7 @@ setup(
     packages=find_packages(),
     package_data={"": extra_files},
     install_requires=["h5py>=2.7.0", "cmd2>=0.7.5", "tree_format"],
-    extras_require={"dev": ["black"]},
+    extras_require={"dev": ["black", "pre-commit"]},
     version=version,
     description="bash-like iterface for HDF5 files",
     url="https://github.com/ksunden/h5cli",
