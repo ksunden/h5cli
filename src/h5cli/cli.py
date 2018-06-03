@@ -8,36 +8,40 @@ import sys
 
 
 class CmdApp(Cmd):
-
     def __init__(self):
-        Cmd.shortcuts.update({'!': 'bang', '$': 'shell'})
+        Cmd.shortcuts.update({"!": "bang", "$": "shell"})
         Cmd.__init__(self)
         self.abbrev = True
-        self.prompt = '[] > '
+        self.prompt = "[] > "
         self.explorer = None
         self.dir_stack = list()
 
     def postcmd(self, stop, line):
-        self.prompt = '[] > '
+        self.prompt = "[] > "
         if self.explorer:
-            self.prompt = '[{}: {}/] {} '.format(
+            self.prompt = "[{}: {}/] {} ".format(
                 os.path.basename(self.explorer.filename),
                 os.path.basename(self.explorer.working_dir),
-                '>' if self.explorer.raw.mode == 'r' else '+>')
+                ">" if self.explorer.raw.mode == "r" else "+>",
+            )
         return stop
 
     def do_source(self, args):
         Cmd.do_load(self, args)
 
-    @options([
-        make_option('-m', '--mode', type=str, default='r', help='File mode ([r]ead, [w]rite, [a]ppend)')
-    ])
+    @options(
+        [
+            make_option(
+                "-m", "--mode", type=str, default="r", help="File mode ([r]ead, [w]rite, [a]ppend)"
+            )
+        ]
+    )
     def do_load(self, args, opts=None):
         """Load an hdf5 file.
 
         Usage: load [-m mode] file [path]
         """
-        path = '/'
+        path = "/"
         if len(args) > 1:
             path = args[1]
         if len(args) == 0:
@@ -62,7 +66,7 @@ class CmdApp(Cmd):
 
     def do_cd(self, args, opts=None):
         if len(args) == 0:
-            args = '/'
+            args = "/"
         self.explorer.change_dir(args)
 
     def do_pwd(self, args, opts=None):
@@ -103,17 +107,17 @@ class CmdApp(Cmd):
         raise NotImplementedError
 
     def do_su(self, args, opts=None):
-        self.do_load('-ma')
+        self.do_load("-ma")
 
     def do_sudo(self, args, opts=None):
         # guaranteed to be 'r' or 'r+' not 'w' which would be dangerous
         mode = self.explorer.raw.mode
-        self.do_load('-ma')
+        self.do_load("-ma")
         self.onecmd(str(args))
-        self.do_load('-m'+mode)
+        self.do_load("-m" + mode)
 
     def do_bang(self, args, opts=None):
-        if args.strip() == '!':
+        if args.strip() == "!":
             print(self.history[-2])
             self.onecmd(self.history[-2])
         elif args.strip().isnumeric():
@@ -130,22 +134,45 @@ class CmdApp(Cmd):
             raise ValueError("{}: event not found".format(args))
 
     def do_clear(self, args):
-        os.system('clear')
+        os.system("clear")
 
-    @options([
-        make_option('-n', '--number',action='store_const', const='number', dest='kind', help='print number of elements, rather than full shape'),
-        make_option('-m', '--maxshape',action='store_const', const='maxshape', dest='kind', help='print maximum shape, rather than current shape'),
-        make_option('-c', '--chunks',action='store_const', const='chunks', dest='kind', help='print shape of chunks, rather than full shape'),
-    ])
+    @options(
+        [
+            make_option(
+                "-n",
+                "--number",
+                action="store_const",
+                const="number",
+                dest="kind",
+                help="print number of elements, rather than full shape",
+            ),
+            make_option(
+                "-m",
+                "--maxshape",
+                action="store_const",
+                const="maxshape",
+                dest="kind",
+                help="print maximum shape, rather than current shape",
+            ),
+            make_option(
+                "-c",
+                "--chunks",
+                action="store_const",
+                const="chunks",
+                dest="kind",
+                help="print shape of chunks, rather than full shape",
+            ),
+        ]
+    )
     def do_shape(self, args, opts=None):
         """Print the shape of a dataset."""
-        if opts.kind == 'number':
+        if opts.kind == "number":
             print(self.explorer[args[0]].size)
 
-        elif opts.kind == 'maxshape':
+        elif opts.kind == "maxshape":
             print(self.explorer[args[0]].maxshape)
 
-        elif opts.kind == 'chunks':
+        elif opts.kind == "chunks":
             print(self.explorer[args[0]].chunks)
 
         else:
@@ -153,9 +180,16 @@ class CmdApp(Cmd):
 
         return False
 
-    @options([
-        make_option('-a', '--axis', type=int, help='change length of a single axis, rather than the full shape'),
-    ])
+    @options(
+        [
+            make_option(
+                "-a",
+                "--axis",
+                type=int,
+                help="change length of a single axis, rather than the full shape",
+            )
+        ]
+    )
     def do_resize(self, args, opts=None):
         """Resize a dataset to a given shape.
 
@@ -165,11 +199,10 @@ class CmdApp(Cmd):
         shape = tuple(int(x) for x in args[1:])
         if opts.axis is not None:
             if len(shape) != 1:
-                raise ValueError('Expected exactly one integer when changing axis size')
+                raise ValueError("Expected exactly one integer when changing axis size")
             self.explorer[dataset].resize(shape[0], axis=opts.axis)
         else:
             self.explorer[dataset].resize(shape)
-
 
     @options([])
     def do_len(self, args, opts=None):
@@ -178,9 +211,9 @@ class CmdApp(Cmd):
     def do_exit(self, args):
         return True
 
-    @options([
-        make_option('-s', '--shape', action='store_true', help='print the shape of datasets')
-    ])
+    @options(
+        [make_option("-s", "--shape", action="store_true", help="print the shape of datasets")]
+    )
     def do_tree(self, args, opts=None):
         """list contents of groups in a tree-like format."""
         global __groupcount
@@ -196,11 +229,11 @@ class CmdApp(Cmd):
 
         def format(item):
             name = os.path.basename(item.name)
-            if name == '':
-                name = '/'
+            if name == "":
+                name = "/"
             if isinstance(item, h5py.Dataset):
                 if opts.shape:
-                    name = name + '  ' + str(item.shape)
+                    name = name + "  " + str(item.shape)
                 global __datasetcount
                 __datasetcount += 1
             elif isinstance(item, h5py.Group):
@@ -209,19 +242,17 @@ class CmdApp(Cmd):
             return name
 
         if len(args) == 0:
-            args.append('')
+            args.append("")
         group = self.explorer.group(args[0])
         tree_format.print_tree(group, format, children)
-        print('{} groups, {} datasets'.format(__groupcount - 1, __datasetcount))
+        print("{} groups, {} datasets".format(__groupcount - 1, __datasetcount))
 
     @options([])
     def do_dtype(self, args, opts=None):
         """Print the data type of a dataset."""
         print(self.explorer[args[0]].dtype)
 
-    @options([
-        make_option('-o', '--opts', action='store_true', help='print compression options.')
-        ])
+    @options([make_option("-o", "--opts", action="store_true", help="print compression options.")])
     def do_comp(self, args, opts=None):
         """Print the compression filter of a dataset."""
         print(self.explorer[args[0]].compression)
@@ -232,7 +263,7 @@ class CmdApp(Cmd):
 def main():
     c = CmdApp()
     if len(sys.argv) > 1:
-        c.onecmd('load ' + sys.argv[1])
+        c.onecmd("load " + sys.argv[1])
         c.postcmd(False, "")
         sys.argv[1] = ""
     c.cmdloop()

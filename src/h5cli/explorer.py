@@ -2,6 +2,7 @@ import h5py
 import os
 import re
 
+
 class H5Explorer(object):
     def __init__(self, h5_obj):
         self.__filename = h5_obj.file.filename
@@ -61,14 +62,13 @@ class H5Explorer(object):
     def datasets(self):
         target_dir = self.__check_group(None)
 
-        return [k for k, v in self.__file[target_dir].items()
-                if isinstance(v, h5py.Dataset)]
+        return [k for k, v in self.__file[target_dir].items() if isinstance(v, h5py.Dataset)]
+
     @property
     def groups(self):
         target_dir = self.__check_group(None)
 
-        return [k for k, v in self.__file[target_dir].items()
-                if isinstance(v, h5py.Group)]
+        return [k for k, v in self.__file[target_dir].items() if isinstance(v, h5py.Group)]
 
     def __getitem__(self, path):
         result = self.__file[self.__get_absolute_path(path)]
